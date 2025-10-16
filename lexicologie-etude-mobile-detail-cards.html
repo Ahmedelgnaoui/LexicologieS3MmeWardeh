@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff">
+  <title>Lexicologie – Étude Mobile DÉTAILLÉE (Cards)</title>
+  <style>
+    /* ====== Light palette, mobile-first ====== */
+    :root{
+      --ink:#0f172a;
+      --muted:#475569;
+      --bg:#fafcff;
+      --card:#ffffff;
+      --accent:#5b6ee1;
+      --accent-2:#22b07d;
+      --ring: rgba(91,110,225,.20);
+      --radius:14px;
+      --touch:52px;
+      --space:16px;
+      --safe: env(safe-area-inset-bottom, 0);
+      --soft-1:#eef4ff;
+      --soft-2:#f2fbf7;
+      --border: rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color: transparent}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 500px at 10% -10%, var(--soft-1), transparent 60%),
+        radial-gradient(900px 400px at 90% -15%, var(--soft-2), transparent 60%),
+        var(--bg);
+    }
+    h1,h2,h3{line-height:1.2}
+    .container{width:100%;max-width:960px;margin:0 auto;padding:var(--space);padding-bottom:calc(80px + var(--safe))}
+    header.hero{
+      position:sticky; top:0; z-index:10;
+      background:linear-gradient(180deg, rgba(91,110,225,.10), rgba(255,255,255,.85) 60%, transparent);
+      backdrop-filter:saturate(130%) blur(6px);
+      border-bottom:1px solid var(--border);
+      padding:12px var(--space);
+    }
+    .hero h1{margin:6px 0 6px; font-size: clamp(20px, 5vw, 30px); letter-spacing:-.01em}
+    .hero p{margin:0;color:var(--muted); font-size:14px}
+    .chip{
+      display:inline-flex;gap:8px;align-items:center;
+      background:#f1f4ff;padding:6px 10px;border-radius:999px;
+      border:1px solid #e4e9ff;color:#3f51bf;font-weight:600; font-size:12px
+    }
+    .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:0 8px 26px rgba(2,6,23,.06); margin:12px 0}
+    .section-title{display:flex; align-items:center; gap:10px; margin:0 0 8px; font-size: clamp(18px, 4.8vw, 24px)}
+    .badge{font-weight:700; font-size:11px; padding:4px 10px; border-radius:999px; background:#edf0ff; color:#2b3bb0; border:1px solid #dfe5ff}
+    .muted{color:var(--muted)}
+    .soft{background:#f7fafc; border:1px solid #e6edf2; border-radius:12px; padding:12px}
+    .timeline{display:grid; gap:8px; max-height:340px; overflow:auto; padding-right:4px; -webkit-overflow-scrolling:touch}
+    .tl-item{display:grid; grid-template-columns:90px 1fr; gap:10px; align-items:start; padding:10px; border-radius:12px; border:1px solid var(--border); background:#fff}
+    .tl-item .date{font-weight:700; color:#334155}
+    details{border-radius:12px; border:1px solid var(--border); background:var(--card); padding:8px 10px; margin:10px 0}
+    summary{cursor:pointer; list-style:none; font-weight:700; display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; outline: none}
+    summary::-webkit-details-marker{display:none}
+    details[open] summary{background:#f5f7ff}
+    /* ====== Universal Table-Cards ====== */
+    .cards-list{display:grid; gap:10px}
+    .tcard{
+      display:grid; gap:8px; padding:12px;
+      border:1px solid var(--border); border-radius:12px; background:#fff;
+      box-shadow:0 4px 16px rgba(15,23,42,.05);
+    }
+    .trow{display:grid; grid-template-columns: 120px 1fr; gap:8px; align-items:start}
+    .trow .label{font-size:12px; font-weight:700; color:#3949ab; background:#eef4ff; border:1px solid #e0e7ff; padding:4px 8px; border-radius:999px; width:max-content}
+    .trow .value{color:var(--ink)}
+    @media (min-width:760px){ .trow{grid-template-columns:160px 1fr} }
+    .split{display:grid; gap:12px}
+    @media (min-width:760px){ .split{grid-template-columns:1fr 1fr} }
+    /* Flashcards */
+    .toolbar{display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:8px}
+    .search{flex:1 1 auto; min-width:200px; display:flex; gap:8px; align-items:center; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:10px 12px}
+    .search input{border:0; outline:0; width:100%; font-size:16px; background:transparent; color:var(--ink)}
+    .btn{display:inline-flex; gap:8px; align-items:center; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background:var(--card); cursor:pointer; min-height: var(--touch); font-weight:600; box-shadow:0 2px 0 rgba(15,23,42,.04)}
+    .btn.primary{background:linear-gradient(180deg, #f4f6ff, #ffffff); border-color:#dfe5ff}
+    .flash-grid{display:grid; gap:12px; grid-template-columns: 1fr}
+    @media (min-width:560px){ .flash-grid{grid-template-columns: repeat(2, 1fr)} }
+    @media (min-width:840px){ .flash-grid{grid-template-columns: repeat(3, 1fr)} }
+    .flip{perspective:1000px; cursor:pointer; min-height: 180px; position:relative; touch-action: manipulation}
+    .flip .inner{position:absolute; inset:0; transition:transform .45s; transform-style:preserve-3d}
+    .flip[aria-pressed="true"] .inner{ transform: rotateY(180deg) }
+    .face{position:absolute; inset:0; display:grid; place-items:center; padding:16px; text-align:center; border-radius:16px; border:1px solid var(--border); background:var(--card); backface-visibility:hidden; box-shadow:0 8px 24px rgba(15,23,42,.08)}
+    .back{ transform: rotateY(180deg); background:#f7f8ff }
+    .face h4{margin:0 0 6px; font-size:18px}
+    .face p{margin:0; color:var(--muted)}
+    code.k{background:#f1f5f9; padding:2px 6px; border-radius:6px; border:1px solid #e2e8f0}
+    /* Bottom Tab Bar */
+    .tabbar{position:fixed; left:0; right:0; bottom:0; z-index:50; padding-bottom: var(--safe); background:var(--card); border-top:1px solid var(--border); display:grid; grid-template-columns: repeat(5, 1fr)}
+    .tabbar a{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; height:66px; font-size:12px; color:var(--muted); text-decoration:none}
+    .tabbar a:active{background:#f5f7ff}
+    .tabbar .active{color:var(--accent); font-weight:700}
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="chip">Lexicologie – S3</div>
+    <h1>Étude Mobile détaillée : Cours 1–3 (Cards)</h1>
+    <p>Même contenu détaillé, mais toutes les “tables” sont des cartes empilées.</p>
+  </header>
+
+  <main class="container">
+    <!-- Plan -->
+    <section id="plan" class="card">
+      <h2 class="section-title">📅 Plan 2025-2026 <span class="badge">Aperçu</span></h2>
+      <div class="timeline" aria-label="Calendrier des séances">
+        <div class="tl-item"><div class="date">18 sept.</div><div>Introduction générale</div></div>
+        <div class="tl-item"><div class="date">25 sept.</div><div>Histoire de la langue – Fonds étymologiques – Procédés</div></div>
+        <div class="tl-item"><div class="date">2 oct.</div><div>Morphologie : mot, monème, morphème</div></div>
+        <div class="tl-item"><div class="date">9 oct.</div><div>Formation : composition</div></div>
+        <div class="tl-item"><div class="date">16 oct.</div><div>Formation : dérivation</div></div>
+        <div class="tl-item"><div class="date">23–30 oct.</div><div>Variation lexicale – Dynamique des langues</div></div>
+        <div class="tl-item"><div class="date">6 nov.</div><div>Marche verte – Férié</div></div>
+        <div class="tl-item"><div class="date">13 nov.</div><div>Contrôle – Expressions figées</div></div>
+        <div class="tl-item"><div class="date">20 nov.</div><div>Champ lexical & sémantique</div></div>
+        <div class="tl-item"><div class="date">27 nov.</div><div>Relations sémantiques</div></div>
+        <div class="tl-item"><div class="date">4 déc.</div><div>Relations hiérarchiques</div></div>
+        <div class="tl-item"><div class="date">11 déc.</div><div>Relations d’équivalence</div></div>
+        <div class="tl-item"><div class="date">18 déc.</div><div>Sens – Référence – Signification | Préparation examens</div></div>
+      </div>
+    </section>
+
+    <!-- Cours 1–3 as universal table-cards -->
+    <section id="cours">
+      <details class="card" open>
+        <summary>🧭 Cours 1 — Introduction à la lexicologie</summary>
+        <div class="split">
+          <div>
+            <h3>Définition & périmètre</h3>
+            <p>La <strong>lexicologie</strong> étudie le <em>lexique</em> : unités, structure, sens, usages et évolution. Carrefour de <strong>morphologie</strong> et <strong>sémantique</strong>, en lien avec phonologie, syntaxe, stylistique, sociolinguistique.</p>
+            <div class="soft">
+              <div class="tcard" aria-label="Lexique vs Vocabulaire">
+                <div class="trow"><span class="label">Terme</span><span class="value">Lexique</span></div>
+                <div class="trow"><span class="label">Définition</span><span class="value">Inventaire des unités lexicales d’une langue.</span></div>
+                <div class="trow"><span class="label">Remarque</span><span class="value">Dimension collective du système.</span></div>
+              </div>
+              <div class="tcard" aria-label="Vocabulaire">
+                <div class="trow"><span class="label">Terme</span><span class="value">Vocabulaire</span></div>
+                <div class="trow"><span class="label">Définition</span><span class="value">Lexique effectivement mobilisé par un locuteur (actif/passif).</span></div>
+                <div class="trow"><span class="label">Remarque</span><span class="value">Dimension individuelle/usage.</span></div>
+              </div>
+              <div class="tcard" aria-label="Unité lexicale">
+                <div class="trow"><span class="label">Terme</span><span class="value">Unité lexicale</span></div>
+                <div class="trow"><span class="label">Définition</span><span class="value">Mot, locution figée, proverbe; inclut les formes flexionnelles.</span></div>
+                <div class="trow"><span class="label">Exemple</span><span class="value">« machine à laver » (polylexicale)</span></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3>Termes de base</h3>
+            <div class="cards-list">
+              <div class="tcard" aria-label="Signifiant">
+                <div class="trow"><span class="label">Terme</span><span class="value">Signifiant</span></div>
+                <div class="trow"><span class="label">Définition</span><span class="value">Forme sonore/graphique.</span></div>
+                <div class="trow"><span class="label">Exemple</span><span class="value">/mɔt/ – « mot »</span></div>
+              </div>
+              <div class="tcard" aria-label="Signifié">
+                <div class="trow"><span class="label">Terme</span><span class="value">Signifié</span></div>
+                <div class="trow"><span class="label">Définition</span><span class="value">Concept associé.</span></div>
+                <div class="trow"><span class="label">Exemple</span><span class="value">Idée d’« unité lexicale »</span></div>
+              </div>
+              <div class="tcard" aria-label="Référent">
+                <div class="trow"><span class="label">Terme</span><span class="value">Référent</span></div>
+                <div class="trow"><span class="label">Définition</span><span class="value">Objet du monde (si pertinent).</span></div>
+                <div class="trow"><span class="label">Exemple</span><span class="value">Un mot précis écrit sur la page.</span></div>
+              </div>
+            </div>
+
+            <h3>Exemples guidés</h3>
+            <div class="cards-list">
+              <div class="tcard" aria-label="impossible">
+                <div class="trow"><span class="label">Unité</span><span class="value">im-possible</span></div>
+                <div class="trow"><span class="label">Analyse</span><span class="value">Préfixe négatif im- + base « possible »</span></div>
+                <div class="trow"><span class="label">Observation</span><span class="value">Dérivation par préfixation</span></div>
+              </div>
+              <div class="tcard" aria-label="relecture">
+                <div class="trow"><span class="label">Unité</span><span class="value">re-lecture</span></div>
+                <div class="trow"><span class="label">Analyse</span><span class="value">Préfixe « re- » (itération) + base « lecture »</span></div>
+                <div class="trow"><span class="label">Observation</span><span class="value">Sens de répétition</span></div>
+              </div>
+              <div class="tcard" aria-label="locution">
+                <div class="trow"><span class="label">Unité</span><span class="value">machine à laver</span></div>
+                <div class="trow"><span class="label">Type</span><span class="value">Locution nominale</span></div>
+                <div class="trow"><span class="label">Remarque</span><span class="value">Unité polylexicale figée</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary>🏛️ Cours 2 — Histoire & fonds étymologique</summary>
+        <div class="split">
+          <div>
+            <h3>Repères historiques</h3>
+            <div class="cards-list">
+              <div class="tcard" aria-label="Antiquité">
+                <div class="trow"><span class="label">Période</span><span class="value">Antiquité</span></div>
+                <div class="trow"><span class="label">Traits</span><span class="value">Substrat gaulois/celte, superstrat germanique; <em>latin vulgaire</em> base.</span></div>
+              </div>
+              <div class="tcard" aria-label="Moyen Âge">
+                <div class="trow"><span class="label">Période</span><span class="value">Moyen Âge</span></div>
+                <div class="trow"><span class="label">Traits</span><span class="value">Langues d’oïl/d’oc ; <em>Serments de Strasbourg</em> (842).</span></div>
+              </div>
+              <div class="tcard" aria-label="Âge classique">
+                <div class="trow"><span class="label">Période</span><span class="value">Âge classique</span></div>
+                <div class="trow"><span class="label">Traits</span><span class="value">Académie française (1635), normalisation.</span></div>
+              </div>
+              <div class="tcard" aria-label="Période moderne">
+                <div class="trow"><span class="label">Période</span><span class="value">Période moderne</span></div>
+                <div class="trow"><span class="label">Traits</span><span class="value">Centralisation, école, médias → standard stabilisé.</span></div>
+              </div>
+            </div>
+
+            <h3>Typologie étymologique</h3>
+            <div class="cards-list">
+              <div class="tcard">
+                <div class="trow"><span class="label">Catégorie</span><span class="value">Fonds primitif</span></div>
+                <div class="trow"><span class="label">Description</span><span class="value">Mots hérités (surtout du latin).</span></div>
+                <div class="trow"><span class="label">Exemples</span><span class="value">père, terre, eau</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Catégorie</span><span class="value">Emprunts</span></div>
+                <div class="trow"><span class="label">Description</span><span class="value">Mots adoptés d’autres langues.</span></div>
+                <div class="trow"><span class="label">Exemples</span><span class="value">algèbre (ar.), piano (it.), patio (esp.), week-end (ang.)</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Catégorie</span><span class="value">Formations internes</span></div>
+                <div class="trow"><span class="label">Description</span><span class="value">Créées par dérivation/composition.</span></div>
+                <div class="trow"><span class="label">Exemples</span><span class="value">télé-travail, relecture, anti-âge</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3>Procédés de formation & études de cas</h3>
+            <div class="cards-list">
+              <div class="tcard">
+                <div class="trow"><span class="label">Procédé</span><span class="value">Dérivation</span></div>
+                <div class="trow"><span class="label">Détails</span><span class="value">Préfixation (in-<em>actif</em>), suffixation (lectur<strong>eur</strong>), parasynthèse (en-rich-ir).</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Procédé</span><span class="value">Composition</span></div>
+                <div class="trow"><span class="label">Exemples</span><span class="value"><em>porte-monnaie</em>, <em>ouvre-bouteille</em>.</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Autres</span><span class="value">Sigles (OVNI), acronymes (Unesco), troncation (fac), onomatopées, emprunts adaptés.</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Étude</span><span class="value">hôpital</span></div>
+                <div class="trow"><span class="label">Origine</span><span class="value">latin <em>hospitale</em></span></div>
+                <div class="trow"><span class="label">Mécanisme</span><span class="value">Héritage + évolutions phonétiques</span></div>
+                <div class="trow"><span class="label">Commentaire</span><span class="value">Fonds primitif</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Étude</span><span class="value">guitare</span></div>
+                <div class="trow"><span class="label">Origine</span><span class="value">espagnol <em>guitarra</em></span></div>
+                <div class="trow"><span class="label">Mécanisme</span><span class="value">Emprunt</span></div>
+                <div class="trow"><span class="label">Commentaire</span><span class="value">Adaptation phonographique</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Étude</span><span class="value">anti-bactérien</span></div>
+                <div class="trow"><span class="label">Origine</span><span class="value">grec/latin</span></div>
+                <div class="trow"><span class="label">Mécanisme</span><span class="value">Préfixe + base savante</span></div>
+                <div class="trow"><span class="label">Commentaire</span><span class="value">Dérivation savante</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary>🧩 Cours 3 — Morphologie & morphèmes</summary>
+        <div class="split">
+          <div>
+            <h3>Morphème : critères</h3>
+            <div class="cards-list">
+              <div class="tcard">
+                <div class="trow"><span class="label">Critère</span><span class="value">Récurrence de forme</span></div>
+                <div class="trow"><span class="label">Explication</span><span class="value">Réapparaît dans divers lexèmes.</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Critère</span><span class="value">Stabilité sémantique</span></div>
+                <div class="trow"><span class="label">Explication</span><span class="value">Conserve une valeur proche.</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Critère</span><span class="value">Distribution</span></div>
+                <div class="trow"><span class="label">Explication</span><span class="value">Position attendue : préfixe initial, suffixe final, base au centre.</span></div>
+              </div>
+            </div>
+
+            <h3>Catégories</h3>
+            <div class="cards-list">
+              <div class="tcard">
+                <div class="trow"><span class="label">Type</span><span class="value">Lexicaux</span></div>
+                <div class="trow"><span class="label">Rôle</span><span class="value">Portent le contenu</span></div>
+                <div class="trow"><span class="label">Exemples</span><span class="value"><em>chant</em>-eur, <em>rouge</em>-âtre</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Type</span><span class="value">Grammaticaux</span></div>
+                <div class="trow"><span class="label">Rôle</span><span class="value">Relations/accords</span></div>
+                <div class="trow"><span class="label">Exemples</span><span class="value">chant-e, -s (plur.)</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Type</span><span class="value">Libres</span></div>
+                <div class="trow"><span class="label">Rôle</span><span class="value">Autonomes</span></div>
+                <div class="trow"><span class="label">Exemples</span><span class="value">avec, sur</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Type</span><span class="value">Liés</span></div>
+                <div class="trow"><span class="label">Rôle</span><span class="value">Dépendent d’une base</span></div>
+                <div class="trow"><span class="label">Exemples</span><span class="value">pré-/re-/anti-, -eur/-able</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Type</span><span class="value">Dérivationnels</span></div>
+                <div class="trow"><span class="label">Rôle</span><span class="value">Créent de nouveaux mots</span></div>
+                <div class="trow"><span class="label">Exemples</span><span class="value">in-utile, bouge-ment</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Type</span><span class="value">Flexionnels</span></div>
+                <div class="trow"><span class="label">Rôle</span><span class="value">Marquent l’accord/temps</span></div>
+                <div class="trow"><span class="label">Exemples</span><span class="value">parl-aient, fin-aux</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3>Méthode & exercices résolus</h3>
+            <div class="cards-list">
+              <div class="tcard">
+                <div class="trow"><span class="label">Méthode</span><span class="value">Repérer la base</span></div>
+                <div class="trow"><span class="label">Astuce</span><span class="value">Chercher le sens principal.</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Méthode</span><span class="value">Isoler les affixes</span></div>
+                <div class="trow"><span class="label">Astuce</span><span class="value">Listez pré/suffixes connus.</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Méthode</span><span class="value">Qualifier</span></div>
+                <div class="trow"><span class="label">Astuce</span><span class="value">Libre/lié; lexical/grammatical; dérivationnel/flexionnel.</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Méthode</span><span class="value">Vérifier (commutation)</span></div>
+                <div class="trow"><span class="label">Astuce</span><span class="value">Remplacer un affixe; vérifier le sens.</span></div>
+              </div>
+
+              <div class="tcard">
+                <div class="trow"><span class="label">Mot</span><span class="value">inaudible</span></div>
+                <div class="trow"><span class="label">Segmentation</span><span class="value">in- + aud + -ible</span></div>
+                <div class="trow"><span class="label">Typage</span><span class="value">préfixe dérivationnel + base + suffixe dérivationnel</span></div>
+                <div class="trow"><span class="label">Remarque</span><span class="value">Négation + capacité</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Mot</span><span class="value">partiraient</span></div>
+                <div class="trow"><span class="label">Segmentation</span><span class="value">part + ir + aient</span></div>
+                <div class="trow"><span class="label">Typage</span><span class="value">base + thème verbal + désinence flexionnelle</span></div>
+                <div class="trow"><span class="label">Remarque</span><span class="value">Conditionnel, 3e pers. plur.</span></div>
+              </div>
+              <div class="tcard">
+                <div class="trow"><span class="label">Mot</span><span class="value">croissance</span></div>
+                <div class="trow"><span class="label">Segmentation</span><span class="value">croiss + -ance</span></div>
+                <div class="trow"><span class="label">Typage</span><span class="value">base + suffixe dérivationnel</span></div>
+                <div class="trow"><span class="label">Remarque</span><span class="value">Nom d’action/état</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Flashcards -->
+    <section id="flashcards" class="card">
+      <div class="toolbar">
+        <h2 class="section-title">🃏 Flashcards</h2>
+        <div class="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="filter" type="search" inputmode="search" placeholder="Filtrer une notion…" aria-label="Filtrer les cartes" />
+        </div>
+        <button class="btn primary" id="shuffle" aria-label="Mélanger les cartes">Mélanger</button>
+      </div>
+      <div class="flash-grid" id="cards" role="list"></div>
+      <p class="muted" style="margin-top:8px">Double-tapez pour marquer « maîtrisée ».</p>
+    </section>
+
+    <!-- Exercices -->
+    <section id="exo" class="card">
+      <h2 class="section-title">✍️ Mini-exercices</h2>
+      <ol>
+        <li><strong>Segmentation morphologique</strong> : découpez et qualifiez (libre/li&eacute;, d&eacute;rivationnel/flexionnel, lexical/grammatical).<br>
+          <code class="k">Accepter, planification, sur, sûres, croissance, décroissance, alerte, alertes, finaux, partiraient, inaudible</code>
+        </li>
+        <li><strong>Repérage diachronique</strong> : classez 10 mots en fonds primitif / emprunts / formations internes ; justifiez chaque choix.</li>
+        <li><strong>Relations lexicales</strong> : 3 paires synonymes/antonymes et 2 chaînes hyperonyme → hyponyme (3 niveaux).</li>
+        <li><strong>Néologie</strong> : proposez 5 créations via pré/suffixation et expliquez la valeur des affixes.</li>
+      </ol>
+    </section>
+  </main>
+
+  <!-- Bottom navigation -->
+  <nav class="tabbar" aria-label="Navigation principale">
+    <a href="#plan" class="active" aria-label="Plan"><span>📅</span><span>Plan</span></a>
+    <a href="#cours" aria-label="Cours"><span>📘</span><span>Cours</span></a>
+    <a href="#flashcards" aria-label="Cartes"><span>🃏</span><span>Cartes</span></a>
+    <a href="#exo" aria-label="Exercices"><span>✍️</span><span>Exo</span></a>
+    <a href="#top" aria-label="Haut de page" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span>⬆️</span><span>Haut</span></a>
+  </nav>
+
+  <script>
+    // Tabs active state
+    const sections = ["plan","cours","flashcards","exo"].map(id=>document.getElementById(id));
+    const tabs = Array.from(document.querySelectorAll(".tabbar a"));
+    function setActive(id){ tabs.forEach(a=>a.classList.toggle("active", a.getAttribute("href")==="#"+id)); }
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ setActive(e.target.id);} });
+    },{threshold:0.55});
+    sections.forEach(s=>observer.observe(s));
+
+    // Flashcards data (same as detailed version)
+    const DATA = [
+      {q:"Lexicologie", a:"Étude scientifique du lexique : unités, structure, sens, usages."},
+      {q:"Lexique vs Vocabulaire", a:"Lexique = inventaire d’une langue ; vocabulaire = usage d’un locuteur."},
+      {q:"Unité lexicale", a:"Mot ou groupe figé (locution, proverbe) + formes flexionnelles."},
+      {q:"Signifiant / Signifié / Référent", a:"Forme / concept / objet du monde."},
+      {q:"Morpholexicologie", a:"Structure des mots (affixation, composition)."},
+      {q:"Lexicosémantique", a:"Relations de sens : polysémie, synonymie, antonymie, hyper-/hyponymie, méronymie."},
+      {q:"Diachronie", a:"Origine et évolution historique des mots."},
+      {q:"Latin vulgaire", a:"Base principale du français ; évolution phonétique/lexicale."},
+      {q:"Serments de Strasbourg (842)", a:"Un des premiers témoignages écrits en roman (proto-français)."},
+      {q:"Académie française (1635)", a:"Institution de normalisation linguistique."},
+      {q:"Fonds primitif", a:"Héritage (surtout latin) ; ex. pater → père."},
+      {q:"Emprunt", a:"Mot pris à une autre langue ; ex. week-end, piano."},
+      {q:"Formation interne", a:"Créée en langue : dérivation, composition ; ex. relecture."},
+      {q:"Dérivation", a:"Ajout d’affixes : préfixation/suffixation/parasynthèse."},
+      {q:"Composition", a:"Association de bases ; ex. ouvre-bouteille."},
+      {q:"Sigle/Acronyme", a:"OVNI/Unesco ; prononciation lettre par lettre ou comme un mot."},
+      {q:"Troncation", a:"Abréviation : fac (faculté)."},
+      {q:"Onomatopée", a:"Imitation sonore : glouglou, boum."},
+      {q:"Morphème", a:"Plus petite unité porteuse de sens."},
+      {q:"Morphème libre", a:"Peut apparaître seul : avec, sur."},
+      {q:"Morphème lié", a:"Dépend d’une base : préfixe re-, suffixe -eur."},
+      {q:"Morphème lexical", a:"Contenu sémantique : chant-, rouge-."},
+      {q:"Morphème grammatical", a:"Fonctionnel/relatif aux accords : -s, -aient."},
+      {q:"Dérivationnel", a:"Crée de nouveaux mots : in-utile, lisible."},
+      {q:"Flexionnel", a:"Marque l’accord ou le temps : fin-aux, part-iraient."},
+      {q:"Parasynthèse", a:"Préfixe + suffixe simultanés : en-rich-ir."},
+      {q:"Commutation", a:"Remplacement d’éléments pour tester le sens/fonction."},
+      {q:"Base", a:"Élément porteur du sens principal : chant dans chanteur."},
+      {q:"Affixe", a:"Élément lié : préfixe (re-), suffixe (-able)."},
+      {q:"Polysémie", a:"Un mot, plusieurs sens liés : tête (corps, organisation)."},
+      {q:"Synonymie", a:"Sens proches : début/commencement."},
+      {q:"Antonymie", a:"Opposition : grand/petit ; vivant/mort."},
+      {q:"Hyperonymie", a:"Catégorie générale : animal > chien > caniche."},
+      {q:"Méronymie", a:"Partie-tout : roue ↔ voiture."},
+      {q:"Néologie", a:"Création de mots (besoin, effet de mode, spécialité)."},
+      {q:"Lexicalisation", a:"Fixation d’une création dans l’usage : courriel."},
+      {q:"Calque", a:"Traduction mot à mot : gratte-ciel (skyscraper)."},
+      {q:"Doublets", a:"Deux héritages du même étymon : fragile / frêle."},
+      {q:"Variations dia-*", a:"Diatopique (région), diastratique (groupe), diaphasique (situation)."},
+      {q:"Affixes fréquents", a:"anti- opposition ; re- répétition ; -eur agent ; -able possibilité ; -iste adepte."},
+      {q:"Méthode en 4 étapes", a:"Repérer, isoler, qualifier, vérifier (commutation)."}
+    ];
+
+    const grid = document.getElementById('cards');
+    const filter = document.getElementById('filter');
+    const shuffleBtn = document.getElementById('shuffle');
+
+    function render(items){
+      grid.innerHTML = '';
+      items.forEach((it, i)=>{
+        const card = document.createElement('button');
+        card.className = 'flip';
+        card.type='button';
+        card.setAttribute('role','listitem');
+        card.setAttribute('aria-pressed','false');
+        card.setAttribute('aria-label', 'Carte '+(i+1)+': '+it.q);
+        card.innerHTML = `
+          <div class="inner">
+            <div class="face front">
+              <div>
+                <h4>${it.q}</h4>
+                <p>Tapez pour voir la réponse</p>
+              </div>
+            </div>
+            <div class="face back">
+              <div>
+                <h4>Réponse</h4>
+                <p>${it.a}</p>
+              </div>
+            </div>
+          </div>`;
+        card.addEventListener('click', ()=>{
+          const on = card.getAttribute('aria-pressed')==='true';
+          card.setAttribute('aria-pressed', String(!on));
+        }, {passive:true});
+        card.addEventListener('dblclick', ()=>{
+          card.style.outline = '2px solid var(--accent-2)';
+          card.style.boxShadow = '0 0 0 4px var(--ring)';
+        }, {passive:true});
+        grid.appendChild(card);
+      });
+    }
+    function shuffle(arr){
+      for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+      }
+      return arr;
+    }
+    filter.addEventListener('input', (e)=>{
+      const q = e.target.value.trim().toLowerCase();
+      const items = DATA.filter(it=> (it.q+it.a).toLowerCase().includes(q));
+      render(items);
+    });
+    shuffleBtn.addEventListener('click', ()=> render(shuffle([...DATA])));
+    render(DATA);
+  </script>
+</body>
+</html>
